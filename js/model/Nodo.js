@@ -4,6 +4,7 @@ function novoNodo(relId, rotulo, posX, posY){
         _posX   = posX,
         _posY   = posY,
         _filhos = [];
+        _pais   = [];
 
       var nodoObj = {
         relIdObj  : _relId,
@@ -11,6 +12,7 @@ function novoNodo(relId, rotulo, posX, posY){
         posXObj   : _posX,
         posYObj   : _posY,
         filhosObj : _filhos,
+        paisObj   : _pais,
         visita    : 0,
         cor       : ""
       };
@@ -32,3 +34,13 @@ function novoFilho(nodoObj, vertice1, vertice2, pesoIn){
   nodoObj.filhosObj.push(filhoObj)
   return nodoObj;
 };
+
+function novoPai(nodoObj, vertice1, vertice2, pesoIn){
+  var paisObj = {
+      idVertice1 : vertice1,
+      idVertice2 : vertice2,
+      peso       : pesoIn
+  };
+  nodoObj.paisObj.push(paisObj)
+  return nodoObj;
+}
