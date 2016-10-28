@@ -25,22 +25,25 @@ function novoNodo(relId, rotulo, posX, posY){
     //};
   };
 
-function novoFilho(nodoObj, vertice1, vertice2, pesoIn){
-  var filhoObj = {
+function createChild(vertice1, vertice2, pesoIn)
+{
+  var child = {
       idVertice1 : vertice1,
       idVertice2 : vertice2,
       peso       : pesoIn
   };
-  nodoObj.filhosObj.push(filhoObj)
+
+  return child;
+}
+
+function novoFilho(nodoObj, vertice1, vertice2, pesoIn){
+  var filhoObj = createChild(vertice1, vertice2, pesoIn);
+  nodoObj.filhosObj.push(filhoObj);
   return nodoObj;
 };
 
 function novoPai(nodoObj, vertice1, vertice2, pesoIn){
-  var paisObj = {
-      idVertice1 : vertice1,
-      idVertice2 : vertice2,
-      peso       : pesoIn
-  };
+  var paisObj = createChild(vertice1, vertice2, pesoIn);
   nodoObj.paisObj.push(paisObj)
   return nodoObj;
 }

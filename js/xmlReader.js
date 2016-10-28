@@ -19,15 +19,25 @@
         return nodeGraph;
   };
 
+  function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
   function init() {
-      var cy = cytoscape({container: document.getElementById('cy')});
+      var cy = cytoscape({
+        container:  document.getElementById('cy'),
+        style:      cytoscape.stylesheet()
+                      .selector('edge').css({'width': 1})
+                      .selector('edge:selected').css({'line-color': 'red', 'width': 3})
+      });
 
       var nodos = lerXML();
-      var cores = [
-                   "#009a93","#e0a4c7","#2958d6","#5e7beb","#f2d72c","#d4c767",
-                   "#6f3062","#d60286","#5897d0","#6561ce","#f96f15","#e94432",
-                   "#b5a40c","#fe0f09","#cd82f7","#f0bea3","#166509","#5a782f"
-                  ]
+      var cores = [];
 
       var maxArray = new Array();
 
@@ -54,16 +64,50 @@
       for (var i = 0; i < nodos.length; i++) {
         maxArray.push((nodos[i].filhosObj.length + nodos[i].paisObj.length))
       }
+
       var caminho = BFS(nodos, maxArray.indexOf(Math.max.apply(Math,maxArray)));
+      var caminhoString = '';
+      for (var i = 0; i < caminho.length; i++) {
+        caminhoString += nodos[caminho[i]].rotuloObj + ' -> '
+      }
+
       coloracao(nodos, caminho, cy);
+      if(conexo(nodos))
+      {
+        toastr.success('É conexo', 'Conectividade');
+        $("#caminho").val(caminhoString);
+        $("#divcaminho").show();
+      }
+      else
+      {
+        toastr.error('Não é conexo', 'Conectividade');
+      }
   }
 
+  // função de espera
+  function sleep() {
+
+  }
+
+  // create a gay boy band
   function coloracao(nodos, caminho, cy) {
-    var cores = [
+    /*var cores = [
                  "#009a93","#e0a4c7","#2958d6","#5e7beb","#f2d72c","#d4c767",
                  "#6f3062","#d60286","#5897d0","#6561ce","#f96f15","#e94432",
                  "#b5a40c","#fe0f09","#cd82f7","#f0bea3","#166509","#5a782f"
-                ]
+               ]*/
+    var cores = [];
+    for (var i = 0; i < 255; ++i)
+    {
+        var cor = getRandomColor();
+        while (-1 !== cores.indexOf(cor))
+        {
+          cor = getRandomColor();
+        }
+
+        cores.push(cor);
+    }
+
     for (var i = 0; i < nodos.length; i++) {
       if (!nodos[i].cor) {
         var existeCorVizinho = false;
@@ -125,15 +169,22 @@
             }
           }
           nodos[i].cor = cores[j];
-          cy.style().selector('node[id = "' + nodos[i].relIdObj + '"]').style({
-              'background-color' : cores[j],
-              'label': nodos[i].rotuloObj
-          }).update();
+
+          console.log(i);
+          colore(nodos[i].relIdObj, cores[j], nodos[i].rotuloObj, nodos[i].posX, nodos[i].posY, cy);
+
         }
       }
     }
 
 
+  }
+
+  function colore(id, cor, label, x, y, cy){
+    cy.style().selector('node[id = "' + id + '"]').style({
+        'background-color' : cor,
+        'label': label
+    }).update();
   }
 
   function lerXML(){
@@ -165,10 +216,10 @@
     return nodos;
   };
 
-
   function BFS(nodos, inicio){
-      var fila = new Array();
+      var fila = [];
       var resultado = [];
+
       try {
         nodos[inicio].visita = 2;
       } catch (e) {
@@ -178,20 +229,36 @@
       fila.push(nodos[inicio]);
       resultado.push(nodos[inicio].relIdObj);
 
-          while (fila.length > 0) {
-              nodo = fila[0];
-              fila.shift();
-              for (var i = 0; i < nodo.filhosObj.length; i++) {
-                      vertice = nodo.filhosObj[i].idVertice2;
-                  if (nodos[vertice].visita != 2) {
-                      nodos[vertice].visita = 2;
-                      fila.push(nodos[vertice]);
-                      resultado.push(nodos[vertice].relIdObj);// = resultado + " - " +
-                  }else if(fila.indexOf(nodos[vertice])){
-                      nodos[vertice].visita = 2;
-                      resultado.push(nodos[vertice].relIdObj);// = resultado + " - " + ;
-                  };
+      while (fila.length > 0) {
+          nodo = fila[0];
+          fila.shift();
+          for (var i = 0; i < nodo.filhosObj.length; i++) {
+              vertice = nodo.filhosObj[i].idVertice2;
+              if (nodos[vertice].visita != 2) {
+                  nodos[vertice].visita = 2;
+                  fila.push(nodos[vertice]);
+                  resultado.push(nodos[vertice].relIdObj);// = resultado + " - " +
+              }else if(fila.indexOf(nodos[vertice])){
+                  nodos[vertice].visita = 2;
+                  resultado.push(nodos[vertice].relIdObj);// = resultado + " - " + ;
               };
           };
+      };
+
       return resultado;
   };
+
+  function conexo(nodos)
+  {
+    var isConexo = true;
+    for (var i in nodos)
+    {
+      if (!existeCaminho(nodos, nodos[i]))
+      {
+        isConexo = false;
+        break;
+      }
+    }
+
+    return isConexo;
+  }
