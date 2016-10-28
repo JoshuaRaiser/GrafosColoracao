@@ -71,16 +71,36 @@
         caminhoString += nodos[caminho[i]].rotuloObj + ' -> '
       }
 
-      coloracao(nodos, caminho, cy);
+      qtdCores = coloracao(nodos, caminho, cy);
+      var coresUsadas = [];
+
+      for (var i = 0; i < nodos.length; i++) {
+        coresUsadas.push(nodos[i].cor);
+      }
+      coresUsadas = coresUsadas.filter(function(elem, index, self) {
+          return index == self.indexOf(elem);
+      })
+
+      console.log(coresUsadas);
       if(conexo(nodos))
       {
-        toastr.success('É conexo', 'Conectividade');
+        toastr.success('É conexo', 'Conectividade', {"showDuration": "300",
+                                                    "hideDuration": "1000",
+                                                    "timeOut": "0",
+                                                    "extendedTimeOut": "0",
+                                                    "positionClass": "toast-top-left"});
+
+        toastr.warning(coresUsadas.length + ' cores !', 'Foram Utilizadas', {"showDuration": "300",
+                                                                  "hideDuration": "1000",
+                                                                  "timeOut": "0",
+                                                                  "extendedTimeOut": "0",
+                                                                  "positionClass": "toast-top-left"});
         $("#caminho").val(caminhoString);
         $("#divcaminho").show();
       }
       else
       {
-        toastr.error('Não é conexo', 'Conectividade');
+        toastr.error('Não é conexo', 'Conectividade', {timeOut: 0, "positionClass": "toast-top-left"});
       }
   }
 
@@ -96,6 +116,7 @@
                  "#6f3062","#d60286","#5897d0","#6561ce","#f96f15","#e94432",
                  "#b5a40c","#fe0f09","#cd82f7","#f0bea3","#166509","#5a782f"
                ]*/
+    var qtdCores = 0;
     var cores = [];
     for (var i = 0; i < 255; ++i)
     {
@@ -140,6 +161,7 @@
               'background-color' : cores[0],
               'label': nodos[i].rotuloObj
           }).update();
+          qtdCores++;
         }else{
           // Percorre o vetor de cores e verifica se os vizinhos possuem tal cor
           var j = 0;
@@ -170,14 +192,13 @@
           }
           nodos[i].cor = cores[j];
 
-          console.log(i);
           colore(nodos[i].relIdObj, cores[j], nodos[i].rotuloObj, nodos[i].posX, nodos[i].posY, cy);
-
+          qtdCores++;
         }
       }
     }
 
-
+    return qtdCores;
   }
 
   function colore(id, cor, label, x, y, cy){
