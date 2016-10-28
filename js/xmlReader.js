@@ -124,6 +124,8 @@
         while (-1 !== cores.indexOf(cor))
         {
           cor = getRandomColor();
+
+          
         }
 
         cores.push(cor);
